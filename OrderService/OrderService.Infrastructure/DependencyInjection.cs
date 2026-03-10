@@ -24,9 +24,13 @@ public static class DependencyInjection
         // Configure MassTransit with RabbitMQ and consumers
         services.AddMassTransit(x =>
         {
-            // Register consumers for PaymentService events
+            // Register consumers for PaymentService events (LEGACY - will be phased out)
             x.AddConsumer<PaymentCompletedConsumer>();
             x.AddConsumer<PaymentFailedConsumer>();
+            
+            // Register consumers for OrchestratorService events (SAGA pattern)
+            x.AddConsumer<OrchestratorOrderConfirmedConsumer>();
+            x.AddConsumer<OrchestratorOrderCancelledConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {

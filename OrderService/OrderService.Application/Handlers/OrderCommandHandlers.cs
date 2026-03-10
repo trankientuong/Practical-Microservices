@@ -36,11 +36,24 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
         await _orderRepository.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Publish event to RabbitMQ
+        // Publish OrderCreatedEvent for NotificationService
         await _publishEndpoint.Publish(new OrderCreatedEvent(
             order.Id,
             order.UserId,
             order.TotalAmount,
+            order.OrderDate),
+            cancellationToken);
+
+        // Publish OrderPlacedEvent for OrchestratorService to start saga
+        await _publishEndpoint.Publish(new OrderPlacedEvent(
+            order.Id,
+            order.UserId,
+            order.TotalAmount,
+            order.OrderItems.Select(i => new OrderItemInfo(
+                i.ProductId,
+                i.ProductName,
+                i.Quantity,
+                i.UnitPrice)).ToList(),
             order.OrderDate),
             cancellationToken);
 

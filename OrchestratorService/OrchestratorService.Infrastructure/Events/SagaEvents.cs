@@ -7,7 +7,8 @@ public record OrderItemInfo(Guid ProductId, string ProductName, int Quantity, de
 
 public record PaymentSucceededEvent(Guid OrderId, Guid PaymentId, decimal Amount, List<OrderItemInfo> Items, DateTime ProcessedDate);
 
-public record PaymentFailedEvent(Guid OrderId, string Reason, DateTime FailedDate);
+// PaymentService publishes PaymentFailedEventForOrchestrator (to differentiate from NotificationService's PaymentFailedEvent)
+public record PaymentFailedEventForOrchestrator(Guid OrderId, string Reason, DateTime FailedDate);
 
 public record StockReservedCompletedEvent(Guid OrderId, Guid ProductId, int ReservedQuantity, DateTime ReservedDate);
 

@@ -4,7 +4,7 @@ using OrchestratorService.Infrastructure.Events;
 
 namespace OrchestratorService.Infrastructure.Consumers;
 
-public class PaymentFailedConsumer : IConsumer<PaymentFailedEvent>
+public class PaymentFailedConsumer : IConsumer<PaymentFailedEventForOrchestrator>
 {
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<PaymentFailedConsumer> _logger;
@@ -17,7 +17,7 @@ public class PaymentFailedConsumer : IConsumer<PaymentFailedEvent>
         _logger = logger;
     }
 
-    public async Task Consume(ConsumeContext<PaymentFailedEvent> context)
+    public async Task Consume(ConsumeContext<PaymentFailedEventForOrchestrator> context)
     {
         var message = context.Message;
         _logger.LogWarning("⚠️ [ORCHESTRATOR] PaymentFailedEvent received for Order {OrderId}, Reason: {Reason}",

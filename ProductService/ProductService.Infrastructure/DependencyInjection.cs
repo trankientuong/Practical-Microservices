@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ProductService.Application.Consumers;
 using ProductService.Application.Interfaces;
 using ProductService.Infrastructure.Data;
 using ProductService.Infrastructure.Data.Repositories;
@@ -20,9 +21,12 @@ public static class DependencyInjection
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Configure MassTransit with RabbitMQ for event publishing
+        // Configure MassTransit with RabbitMQ for event publishing and consuming
         services.AddMassTransit(x =>
         {
+            // Register consumers for OrchestratorService events (SAGA pattern)
+            x.AddConsumer<StockReservationRequestedConsumer>();
+            
             x.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(configuration["RabbitMQ:Host"] ?? "localhost", "/", h =>
@@ -31,7 +35,7 @@ public static class DependencyInjection
                     h.Password(configuration["RabbitMQ:Password"] ?? "guest");
                 });
 
-                // No consumers - ProductService only publishes events
+                cfg.ConfigureEndpoints(context);
             });
         });
 
